@@ -4,6 +4,7 @@ from typing import Literal
 
 class ReviewRequest(BaseModel):
     repo_url: HttpUrl
+    use_llm: bool = True
 
 
 class Finding(BaseModel):

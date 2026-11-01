@@ -16,6 +16,8 @@ def health():
 @app.post("/review", response_model=list[Finding])
 def review(request: ReviewRequest):
     try:
-        return run_review(str(request.repo_url))
-    except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        raise HTTPException(status_code=400, detail="Could not clone the repository")
+        return run_review(str(request.repo_url), request.use_llm)
+    except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as err:
+        raise HTTPException(
+            status_code=400, detail="Could not clone the repository"
+        ) from err
