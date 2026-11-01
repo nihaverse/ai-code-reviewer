@@ -110,12 +110,20 @@ def _enrich_batch(root: Path, batch: list[Finding], llm: LLMClient) -> list[Find
     return out
 
 
-def enrich_findings(root: Path, findings: list[Finding], llm: LLMClient) -> list[Finding]:
+def enrich_findings(
+    root: Path, findings: list[Finding], llm: LLMClient
+) -> list[Finding]:
+    # Style issues are self-explanatory: don't spend LLM quota on them.
+    targets = [f for f in findings if f.category != "style"]
+    skipped = [f for f in findings if f.category == "style"]
+
     result: list[Finding] = []
-    batches = [findings[i : i + BATCH_SIZE] for i in range(0, len(findings), BATCH_SIZE)]
+    batches = [
+        targets[i : i + BATCH_SIZE] for i in range(0, len(targets), BATCH_SIZE)
+    ]
     for n, batch in enumerate(batches):
         if n >= MAX_LLM_CALLS:
             result.extend(batch)  # over the quota cap: leave un-enriched
         else:
             result.extend(_enrich_batch(root, batch, llm))
-    return result
+    return result + skipped
