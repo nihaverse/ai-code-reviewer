@@ -14,3 +14,7 @@ class Finding(BaseModel):
     rule_id: str
     message: str
     source: str  # which tool found it, e.g. "ruff"
+    explanation: str | None = None
+    suggested_fix: str | None = None
+    confidence: float | None = None
+    likely_false_positive: bool = False
